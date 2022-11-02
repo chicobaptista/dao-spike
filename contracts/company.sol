@@ -2,50 +2,42 @@
 
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 
-contract Company {
-    using EnumerableSet for EnumerableSet.AddressSet;
+contract Company is AccessControlEnumerable {
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
-    address public owner;
-
-    EnumerableSet.AddressSet admins;
-
-    modifier onlyOwner() {
+    modifier isOwner() {
         require(
-            msg.sender == owner,
+            hasRole(DEFAULT_ADMIN_ROLE, msg.sender),
             "Only the contract owner is allowed to call this method."
         );
         _;
     }
 
     constructor() {
-        owner = msg.sender;
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    function addAdmin(address admin)
-        public
-        onlyOwner
-        returns (address[] memory)
-    {
-        admins.add(admin);
-        return admins.values();
+    function owner() public view returns (address) {
+        return getRoleMember(DEFAULT_ADMIN_ROLE, 0);
     }
 
-    function removeAdmin(address admin)
-        public
-        onlyOwner
-        returns (address[] memory)
-    {
-        admins.remove(admin);
-        return admins.values();
+    function addAdmin(address admin) public isOwner {
+        grantRole(ADMIN_ROLE, admin);
+    }
+
+    function removeAdmin(address admin) public isOwner {
+        revokeRole(ADMIN_ROLE, admin);
     }
 
     function getAdmins() public view returns (address[] memory) {
-        return admins.values();
-    }
+        uint adminCount = getRoleMemberCount(ADMIN_ROLE);
+        address[] memory admins = new address[](adminCount);
+        for (uint i; i < adminCount; ++i) {
+            admins[i] = getRoleMember(ADMIN_ROLE, i);
+        }
 
-    function ownerStub() public view onlyOwner returns (string memory) {
-        return "Success string!";
+        return admins;
     }
 }
