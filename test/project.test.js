@@ -4,6 +4,7 @@ describe("Project Contract", () => {
   let ProjectContract;
   let projectInstance;
   let companyAddress;
+  let owner, admin, maliciousAcc;
   const ONLY_COMPANY_ADMIN_ERROR_MSG =
     "Must be a Company admin to perform this action";
   before(async () => {

@@ -3,6 +3,8 @@ const { expect } = require("chai");
 describe("Company Contract", () => {
   let CompanyContract;
   let companyInstance;
+  let owner, admin, maliciousAcc;
+
   const ONLY_OWNER_ERROR_MSG =
     "Only the contract owner is allowed to call this method.";
 
