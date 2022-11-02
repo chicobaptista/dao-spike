@@ -2,10 +2,10 @@ const { expect } = require("chai");
 
 describe("Company Contract", () => {
   let owner;
-
   let CompanyContract;
-
   let companyContractInstance;
+  const ONLY_OWNER_ERROR_MSG =
+    "Only the contract owner is allowed to call this method.";
 
   beforeEach(async () => {
     [owner, admin, maliciousAcc] = await ethers.getSigners();
@@ -17,18 +17,64 @@ describe("Company Contract", () => {
   it("should have the deployer assigned as owner", async () => {
     expect(await companyContractInstance.owner()).to.equal(owner.address);
   });
-  context("onlyOwnerStub", () => {
-    it("should return a sample string on being called by the owner address", async () => {
-      expect(await companyContractInstance.connect(owner).ownerStub()).to.equal(
-        "Success string!"
+  describe("addAdmin method", () => {
+    context("called by not an owner", () => {
+      it("should revert", async () => {
+        await expect(
+          companyContractInstance
+            .connect(maliciousAcc)
+            .addAdmin(maliciousAcc.address)
+        ).to.be.revertedWith(ONLY_OWNER_ERROR_MSG);
+      });
+    });
+    context("called by owner", () => {
+      it("should add admin to enum", async () => {
+        expect(await companyContractInstance.getAdmins()).to.be.empty;
+        await companyContractInstance.addAdmin(admin.address);
+        expect(await companyContractInstance.getAdmins()).to.contain(
+          admin.address
+        );
+      });
+    });
+  });
+
+  describe("getAdmins method", () => {
+    it("should return the current registered admins set", async () => {
+      expect(await companyContractInstance.getAdmins()).to.be.empty;
+      await companyContractInstance.addAdmin(admin.address);
+      expect(await companyContractInstance.getAdmins()).to.contain(
+        admin.address
       );
     });
-    it("should return an error when called by another address", async () => {
-      await expect(
-        companyContractInstance.connect(maliciousAcc).ownerStub()
-      ).to.be.revertedWith(
-        "Only the contract owner is allowed to call this method."
-      );
+  });
+  describe("removeAdmin method", () => {
+    context("called by not an owner", () => {
+      it("should revert", async () => {
+        await expect(
+          companyContractInstance
+            .connect(maliciousAcc)
+            .removeAdmin(maliciousAcc.address)
+        ).to.be.revertedWith(ONLY_OWNER_ERROR_MSG);
+      });
+    });
+    context("called by owner", () => {
+      context("admin is registered", () => {
+        it("should remove admin from enum", async () => {
+          await companyContractInstance.addAdmin(admin.address);
+          await companyContractInstance.removeAdmin(admin.address);
+          expect(await companyContractInstance.getAdmins()).to.not.contain(
+            admin.address
+          );
+        });
+      });
+      context("admin is NOT registered", () => {
+        it("should 'remove' admin from enum anyways", async () => {
+          await companyContractInstance.removeAdmin(maliciousAcc.address);
+          expect(await companyContractInstance.getAdmins()).to.not.contain(
+            maliciousAcc.address
+          );
+        });
+      });
     });
   });
 });
