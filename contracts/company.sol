@@ -3,8 +3,9 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
+import "./ICompany.sol";
 
-contract Company is AccessControlEnumerable {
+contract Company is AccessControlEnumerable, ICompany {
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
     modifier isOwner() {

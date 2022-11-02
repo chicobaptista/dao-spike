@@ -2,13 +2,13 @@
 
 pragma solidity ^0.8.9;
 
-import "./company.sol";
+import "./ICompany.sol";
 
 contract Project {
     address public company;
 
     modifier onlyAdmin() {
-        Company companyInstance = Company(company);
+        ICompany companyInstance = ICompany(company);
         require(
             companyInstance.isAdmin(msg.sender),
             "Must be a Company admin to perform this action"
