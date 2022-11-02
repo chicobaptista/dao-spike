@@ -77,4 +77,17 @@ describe("Company Contract", () => {
       });
     });
   });
+  describe("isAdmin method", () => {
+    it("should return whether address is registered as Admin", async () => {
+      await companyContractInstance.addAdmin(admin.address);
+      expect(
+        await companyContractInstance.isAdmin(admin.address),
+        "should return true for registered admin"
+      ).to.be.true;
+      expect(
+        await companyContractInstance.isAdmin(maliciousAcc.address),
+        "should return false for malicious account"
+      ).to.be.false;
+    });
+  });
 });

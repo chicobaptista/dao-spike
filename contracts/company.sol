@@ -40,4 +40,8 @@ contract Company is AccessControlEnumerable {
 
         return admins;
     }
+
+    function isAdmin(address subject) public view returns (bool) {
+        return hasRole(ADMIN_ROLE, subject);
+    }
 }
