@@ -1,1 +1,7 @@
+# Build artifacts
 node_modules/
+
+
+# Hardhat artifacts
+artifacts/
+cache/
